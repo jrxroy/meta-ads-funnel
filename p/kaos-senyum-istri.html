@@ -2,205 +2,634 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Promo Kaos Oversize Premium</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Kaos Spesial: Dunia Ini Pahit, Yang Manis Cuma Senyum Istriku</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/supabase.js"></script>
   <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .variant-thumb.active {
+      border-color: #0f172a;
+      box-shadow: 0 0 0 2px #0f172a;
+    }
+    .option-card.active {
+      border-color: #0f172a;
+      background-color: #f8fafc;
+      box-shadow: 0 0 0 2px #0f172a;
+    }
+  </style>
 </head>
-<body class="bg-slate-100 text-slate-800 antialiased">
+<body class="bg-slate-100 text-slate-800 antialiased font-sans pb-24">
 
-  <!-- Promo Top Bar -->
-  <div class="bg-black text-white text-center py-2 px-4 text-xs font-semibold tracking-wider uppercase">
-    ⚡ Flash Sale Spesial Hari Ini — Bayar di Tempat (COD) Seluruh Indonesia
+  <!-- FLOATING STICKY CTA KHUSUS MOBILE -->
+  <div class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 p-3 shadow-2xl md:hidden">
+    <div class="max-w-md mx-auto flex items-center justify-between gap-3">
+      <div>
+        <div class="text-[10px] text-slate-400 line-through">Rp 175.000</div>
+        <div class="text-lg font-black text-slate-900 leading-none" id="stickyPrice">Rp 89.000</div>
+        <span class="text-[9px] text-emerald-600 font-bold" id="stickySubtitle">Harga Promo (1 Pcs)</span>
+      </div>
+      <a href="#orderSection" class="flex-1 bg-rose-600 hover:bg-rose-700 text-white text-center font-black text-xs py-3 px-4 rounded-xl shadow-lg active:scale-95 transition">
+        PESAN SEKARANG &darr;
+      </a>
+    </div>
   </div>
 
-  <main class="max-w-xl mx-auto p-4 space-y-5">
+  <!-- POPUP NOTIFIKASI REALTIME (SOCIAL PROOF) -->
+  <div id="liveOrderToast" class="fixed bottom-20 left-3 z-50 bg-white/95 backdrop-blur-md border border-slate-200 shadow-2xl rounded-2xl p-2.5 flex items-center gap-2.5 transition-all duration-500 transform -translate-x-full opacity-0 max-w-[280px]">
+    <div class="w-9 h-9 rounded-xl bg-slate-900 flex items-center justify-center text-white text-sm font-bold shrink-0">
+      🛍️
+    </div>
+    <div class="text-xs">
+      <p class="font-bold text-slate-900 leading-tight" id="toastCustomer">Rudi (Bandung)</p>
+      <p class="text-[10px] text-slate-500">Beli <span id="toastProduct" class="text-rose-600 font-semibold">1 Pcs Kaos</span></p>
+      <span class="text-[9px] text-slate-400" id="toastTime">14 menit yang lalu</span>
+    </div>
+  </div>
+
+  <!-- HEADER URGENCY & COUNTDOWN TIMER -->
+  <header class="bg-rose-600 text-white text-center py-2 px-3 shadow-sm">
+    <div class="text-[11px] font-extrabold uppercase tracking-wide">
+      ⚡ PROMO SPESIAL FLASH SALE HARI INI
+    </div>
+    <div class="text-xs font-bold mt-0.5 flex items-center justify-center gap-1.5 text-amber-200">
+      <span>Sisa Waktu Promo:</span>
+      <span id="countdownTimer" class="bg-black/40 px-2 py-0.5 rounded font-mono text-white text-xs">14:59</span>
+    </div>
+  </header>
+
+  <main class="max-w-xl mx-auto p-3.5 md:p-4 space-y-4">
     
-    <!-- Bagian Visual & Penawaran Produk -->
-    <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
-      <div class="h-80 bg-slate-200 rounded-xl flex items-center justify-center text-slate-400 font-bold mb-4 overflow-hidden">
-        <!-- Ganti dengan tag <img src="link-foto-kaos.jpg" class="w-full h-full object-cover"> -->
-        [ Foto Utama Kaos Premium ]
+    <!-- Hero Box -->
+    <div class="bg-white rounded-2xl p-4 md:p-5 shadow-sm border border-slate-200">
+      <div class="text-center mb-3">
+        <span class="bg-rose-100 text-rose-700 text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">
+          Edisi Spesial Suami Sayang Istri
+        </span>
+        <h1 class="text-lg md:text-2xl font-black text-slate-900 mt-2 leading-snug">
+          "Dunia Ini Pahit, Yang Manis Cuma Senyum Istriku"
+        </h1>
+        <p class="text-xs text-slate-500 mt-1 leading-relaxed">
+          Kaos santai premium. Bikin istri senyum-senyum sendiri pas kamu pakai di rumah maupun saat jalan santai berdua.
+        </p>
       </div>
 
-      <div class="flex items-center gap-2 mb-2">
-        <span class="bg-amber-100 text-amber-800 text-[11px] font-extrabold px-2.5 py-0.5 rounded-full uppercase">Cotton Combed 24s</span>
-        <span class="bg-rose-100 text-rose-700 text-[11px] font-extrabold px-2.5 py-0.5 rounded-full uppercase">Diskon 50%</span>
+      <!-- Preview Foto Kaos -->
+      <div class="relative bg-slate-50 rounded-2xl p-2 border border-slate-200 overflow-hidden flex flex-col items-center">
+        <span id="badgeModelName" class="absolute top-3 left-3 bg-slate-900/80 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded-md uppercase">
+          Hitam - Floral Typography
+        </span>
+        <img id="mainProductImg" src="../img/hitam.jpeg" alt="Kaos Senyum Istri" class="w-full max-h-[360px] object-contain rounded-xl transition duration-300">
       </div>
 
-      <h1 class="text-xl font-black text-slate-900 leading-tight">Kaos Oversize Signature Edition</h1>
-      <p class="text-xs text-slate-500 mt-1">Potongan rileks kekinian, serat katun murni yang adem, tebal pas, dan tidak menerawang.</p>
+      <!-- Thumbnail Pilihan Desain -->
+      <div class="mt-3">
+        <label class="block text-[11px] font-black text-slate-800 uppercase mb-2">Sentuh untuk Lihat Desain:</label>
+        <div class="grid grid-cols-4 gap-1.5 md:gap-2">
+          
+          <button type="button" onclick="previewVariant('../img/hitam.jpeg', 'Hitam - Floral Typography', this)"
+            class="variant-thumb active border-2 border-slate-900 rounded-xl p-1 bg-white hover:bg-slate-50 transition text-center">
+            <img src="../img/hitam.jpeg" class="h-14 md:h-16 w-full object-cover rounded-lg">
+            <span class="block text-[9px] md:text-[10px] font-bold text-slate-800 mt-1 truncate">Hitam Floral</span>
+          </button>
 
-      <!-- Harga -->
-      <div class="mt-4 flex items-baseline gap-3">
-        <span class="text-3xl font-black text-slate-900" id="priceDisplay">Rp 89.000</span>
-        <span class="text-sm text-slate-400 line-through">Rp 179.000</span>
+          <button type="button" onclick="previewVariant('../img/hitamkotak.jpeg', 'Hitam - Box Typography', this)"
+            class="variant-thumb border-2 border-slate-200 rounded-xl p-1 bg-white hover:bg-slate-50 transition text-center">
+            <img src="../img/hitamkotak.jpeg" class="h-14 md:h-16 w-full object-cover rounded-lg">
+            <span class="block text-[9px] md:text-[10px] font-bold text-slate-800 mt-1 truncate">Hitam Kotak</span>
+          </button>
+
+          <button type="button" onclick="previewVariant('../img/putih.jpeg', 'Putih - Floral Typography', this)"
+            class="variant-thumb border-2 border-slate-200 rounded-xl p-1 bg-white hover:bg-slate-50 transition text-center">
+            <img src="../img/putih.jpeg" class="h-14 md:h-16 w-full object-cover rounded-lg">
+            <span class="block text-[9px] md:text-[10px] font-bold text-slate-800 mt-1 truncate">Putih Floral</span>
+          </button>
+
+          <button type="button" onclick="previewVariant('../img/putihkotak.jpeg', 'Putih - Box Typography', this)"
+            class="variant-thumb border-2 border-slate-200 rounded-xl p-1 bg-white hover:bg-slate-50 transition text-center">
+            <img src="../img/putihkotak.jpeg" class="h-14 md:h-16 w-full object-cover rounded-lg">
+            <span class="block text-[9px] md:text-[10px] font-bold text-slate-800 mt-1 truncate">Putih Kotak</span>
+          </button>
+
+        </div>
       </div>
 
-      <!-- Fitur Keunggulan Singkat -->
-      <div class="grid grid-cols-3 gap-2 mt-5 pt-4 border-t border-slate-100 text-center text-xs">
-        <div class="p-2 bg-slate-50 rounded-lg">
-          <div class="font-bold text-slate-900">Anti Gerah</div>
-          <div class="text-[10px] text-slate-500">100% Katun Murni</div>
+      <!-- Tampilan Harga Desktop/Tablet -->
+      <div class="mt-4 pt-3 border-t border-slate-100 hidden md:flex items-center justify-between">
+        <div>
+          <span class="text-xs text-slate-400 line-through">Rp 175.000</span>
+          <div class="text-2xl font-black text-slate-900" id="displayPrice">Rp 89.000</div>
+          <span class="text-[10px] text-emerald-600 font-bold" id="displayPriceLabel">Harga Promo (1 Pcs)</span>
         </div>
-        <div class="p-2 bg-slate-50 rounded-lg">
-          <div class="font-bold text-slate-900">Jahitan Rantai</div>
-          <div class="text-[10px] text-slate-500">Kuat & Tahan Lama</div>
-        </div>
-        <div class="p-2 bg-slate-50 rounded-lg">
-          <div class="font-bold text-slate-900">Pola Oversize</div>
-          <div class="text-[10px] text-slate-500">Jatuh Rapi di Badan</div>
-        </div>
+        <a href="#orderSection" class="bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs px-4 py-3 rounded-xl shadow-md transition">
+          PESAN SEKARANG &darr;
+        </a>
       </div>
     </div>
 
-    <!-- Panduan Ukuran (Size Chart) Ringkas -->
-    <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm text-xs">
-      <h3 class="font-bold text-slate-900 mb-2 flex items-center gap-1.5">
-        <span>📏</span> Panduan Ukuran (Size Chart):
+    <!-- Size Chart Asli -->
+    <div class="bg-white rounded-2xl p-3.5 border border-slate-200 shadow-sm">
+      <h3 class="font-black text-slate-900 text-xs mb-2 flex items-center gap-1.5 uppercase tracking-wide">
+        <span>📏</span> Panduan Ukuran Kaos (Standar Oversize):
       </h3>
-      <div class="grid grid-cols-4 text-center border rounded-lg overflow-hidden bg-slate-50">
-        <div class="p-2 border-r font-bold">Size</div>
-        <div class="p-2 border-r font-bold">M</div>
-        <div class="p-2 border-r font-bold">L</div>
-        <div class="p-2 font-bold">XL</div>
-
-        <div class="p-2 border-r border-t bg-white">Lebar</div>
-        <div class="p-2 border-r border-t bg-white">54 cm</div>
-        <div class="p-2 border-r border-t bg-white">57 cm</div>
-        <div class="p-2 border-t bg-white">60 cm</div>
-
-        <div class="p-2 border-r border-t bg-white">Panjang</div>
-        <div class="p-2 border-r border-t bg-white">70 cm</div>
-        <div class="p-2 border-r border-t bg-white">73 cm</div>
-        <div class="p-2 border-t bg-white">76 cm</div>
+      <div class="rounded-xl overflow-hidden border border-slate-200">
+        <img src="../img/sizechart.jpeg" alt="Size Chart Kaos Oversize" class="w-full object-contain">
       </div>
     </div>
 
-    <!-- Form Pemesanan Khusus Kaos -->
-    <div class="bg-white p-6 rounded-2xl shadow-lg border-2 border-slate-900">
-      <h2 class="text-lg font-black text-slate-900 mb-1">Form Pemesanan Cepat</h2>
-      <p class="text-xs text-slate-500 mb-4">Isi pilihan warna, ukuran, dan alamat pengiriman Anda:</p>
-
-      <form id="orderForm" class="space-y-4">
-        <!-- Slug & Nama Produk untuk Supabase -->
-        <input type="hidden" id="product_slug" value="kaos-oversize-premium">
-        <input type="hidden" id="product_name" value="Kaos Oversize Signature">
-
-        <!-- Pilihan Paket Bundling (Menaikkan AOV / Rata-rata Nilai Order) -->
-        <div>
-          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Pilih Paket Penawaran</label>
-          <select id="package" class="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm font-semibold bg-white focus:ring-2 focus:ring-slate-900 focus:outline-none">
-            <option value="1 Pcs" data-price="89000">Beli 1 Pcs - Rp 89.000</option>
-            <option value="2 Pcs (Promo Terlaris)" data-price="159000" selected>Beli 2 Pcs - Rp 159.000 (Hemat Rp 19.000)</option>
-            <option value="3 Pcs (Paling Hemat)" data-price="219000">Beli 3 Pcs - Rp 219.000 (Hemat Rp 48.000)</option>
-          </select>
+    <!-- Keunggulan Produk -->
+    <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm space-y-2">
+      <h3 class="font-black text-slate-900 text-xs uppercase tracking-wide">Kenapa Suami Wajib Punya?</h3>
+      <div class="space-y-1.5 text-xs text-slate-600">
+        <div class="flex items-start gap-2">
+          <span class="text-emerald-600 font-bold">✓</span>
+          <p><b>100% Cotton Combed Murni:</b> Serat alami yang adem, nyaman, dan tidak gerah seharian.</p>
         </div>
+        <div class="flex items-start gap-2">
+          <span class="text-emerald-600 font-bold">✓</span>
+          <p><b>Sablon Tajam Anti Pecah:</b> Aman dicuci berulang kali di mesin cuci.</p>
+        </div>
+        <div class="flex items-start gap-2">
+          <span class="text-emerald-600 font-bold">✓</span>
+          <p><b>Bisa COD / Transfer Bank:</b> Bayar pas paket sampai atau transfer langsung.</p>
+        </div>
+      </div>
+    </div>
 
-        <!-- Pilihan Warna & Ukuran -->
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Warna</label>
-            <select id="color" class="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm bg-white focus:ring-2 focus:ring-slate-900 focus:outline-none">
-              <option value="Hitam">Hitam Pekat</option>
-              <option value="Putih">Putih Bersih</option>
-              <option value="Sage Green">Sage Green</option>
-              <option value="Navy">Navy Blue</option>
-            </select>
+    <!-- SECTION TESTIMONI MODERN -->
+    <div class="bg-white rounded-2xl p-4 md:p-5 border border-slate-200 shadow-sm space-y-3">
+      <div class="flex items-center justify-between border-b pb-3">
+        <div>
+          <h3 class="font-black text-slate-900 text-xs md:text-sm uppercase tracking-wide">Ulasan Pembeli Terverifikasi</h3>
+          <p class="text-[11px] text-slate-500">Berdasarkan kepuasan pelanggan yang sudah memesan</p>
+        </div>
+        <div class="text-right">
+          <div class="text-amber-500 text-xs font-black">★★★★★ 4.9/5.0</div>
+          <span class="text-[10px] text-emerald-600 font-bold">100% Real Reviews</span>
+        </div>
+      </div>
+
+      <div class="space-y-2.5">
+        <!-- Review 1 -->
+        <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 text-xs space-y-1.5">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 bg-slate-800 text-white rounded-full flex items-center justify-center font-bold text-[10px]">DP</div>
+              <div>
+                <div class="font-bold text-slate-900 leading-none">Dimas Pratama</div>
+                <span class="text-[9px] text-slate-400">Surabaya • 2 hari lalu</span>
+              </div>
+            </div>
+            <span class="bg-emerald-100 text-emerald-700 text-[9px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+              ✓ Terverifikasi COD
+            </span>
           </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Ukuran (Size)</label>
-            <select id="size" class="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm bg-white focus:ring-2 focus:ring-slate-900 focus:outline-none">
-              <option value="M">M (Oversize)</option>
-              <option value="L">L (Oversize)</option>
-              <option value="XL">XL (Oversize)</option>
-            </select>
+          <div class="text-amber-400 text-[11px]">★★★★★</div>
+          <p class="text-slate-600 leading-relaxed text-[11px]">
+            "Awalnya ragu belanja lewat iklan, ternyata pas paket COD sampai barangnya mantap banget. Bahannya katun combed murni, adem dan jatuh rapi. Sablonnya tebal nggak kaku. Bini langsung senyum pas saya pakai sore kemarin."
+          </p>
+          <div class="text-[10px] text-slate-400 font-medium">Varian: Paket 2 Pcs (Hitam Floral & Putih Kotak)</div>
+        </div>
+
+        <!-- Review 2 -->
+        <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 text-xs space-y-1.5">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 bg-slate-800 text-white rounded-full flex items-center justify-center font-bold text-[10px]">HS</div>
+              <div>
+                <div class="font-bold text-slate-900 leading-none">Hendra Saputra</div>
+                <span class="text-[9px] text-slate-400">Tangerang • 3 hari lalu</span>
+              </div>
+            </div>
+            <span class="bg-emerald-100 text-emerald-700 text-[9px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+              ✓ Terverifikasi Transfer
+            </span>
+          </div>
+          <div class="text-amber-400 text-[11px]">★★★★★</div>
+          <p class="text-slate-600 leading-relaxed text-[11px]">
+            "Pengiriman super cepat 2 hari sampai. Sablon tulisan rapi dan tajam. Cocok banget buat kado atau dipakai santai harian di rumah. Recommended seller!"
+          </p>
+          <div class="text-[10px] text-slate-400 font-medium">Varian: 1 Pcs (Hitam Floral - Size L)</div>
+        </div>
+
+        <!-- Review 3 -->
+        <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 text-xs space-y-1.5">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 bg-slate-800 text-white rounded-full flex items-center justify-center font-bold text-[10px]">RR</div>
+              <div>
+                <div class="font-bold text-slate-900 leading-none">Rizky Ramadhan</div>
+                <span class="text-[9px] text-slate-400">Semarang • 5 hari lalu</span>
+              </div>
+            </div>
+            <span class="bg-emerald-100 text-emerald-700 text-[9px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+              ✓ Terverifikasi COD
+            </span>
+          </div>
+          <div class="text-amber-400 text-[11px]">★★★★★</div>
+          <p class="text-slate-600 leading-relaxed text-[11px]">
+            "Bisa beda ukuran jadi saya bikin kaos couple. Saya pakai XL hitam kotak, istri pakai M putih floral. Jahitan rapi standar distro mall. Pas dipakai jalan banyak yang perhatiin."
+          </p>
+          <div class="text-[10px] text-slate-400 font-medium">Varian: Paket 2 Pcs (Couple Edition)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM PEMESANAN FLEKSIBEL -->
+    <div id="orderSection" class="bg-white p-4 md:p-6 rounded-2xl shadow-xl border-2 border-slate-900 scroll-mt-6">
+      <div class="text-center mb-4">
+        <h2 class="text-base md:text-lg font-black text-slate-900">Formulir Pesanan Cepat</h2>
+        <p class="text-[11px] text-slate-500 mt-0.5">Isi data pengiriman di bawah ini:</p>
+      </div>
+
+      <form id="orderForm" class="space-y-3.5">
+        <input type="hidden" id="product_slug" value="kaos-senyum-istri">
+        <input type="hidden" id="product_name" value="Kaos Senyum Istri">
+
+        <!-- Pilihan Paket Bundling (DEFAULT BELI 1 PCS) -->
+        <div>
+          <label class="block text-xs font-black text-slate-800 uppercase mb-1.5">Pilih Paket Penawaran:</label>
+          <div class="space-y-2">
+            
+            <!-- DEFAULT TERPILIH: 1 PCS -->
+            <label class="option-card active border-2 border-slate-900 p-2.5 md:p-3 rounded-xl flex items-center justify-between cursor-pointer block">
+              <div class="flex items-center gap-2">
+                <input type="radio" name="pkg_option" value="Beli 1 Pcs" data-price="89000" checked class="text-slate-900" onchange="handlePackageChange(this)">
+                <div>
+                  <div class="text-xs font-bold text-slate-900">Beli 1 Pcs Saja</div>
+                  <div class="text-[10px] text-slate-500">Harga Standar Promo Hari Ini</div>
+                </div>
+              </div>
+              <div class="text-xs font-black text-slate-900">Rp 89.000</div>
+            </label>
+
+            <!-- OPSI HEMAT 2 PCS -->
+            <label class="option-card border-2 border-slate-200 p-2.5 md:p-3 rounded-xl flex items-center justify-between cursor-pointer block">
+              <div class="flex items-center gap-2">
+                <input type="radio" name="pkg_option" value="Paket 2 Pcs (Promo Terlaris)" data-price="159000" class="text-slate-900" onchange="handlePackageChange(this)">
+                <div>
+                  <div class="text-xs font-bold text-slate-900">Paket Hemat 2 Pcs (Bebas Pilih Varian/Size)</div>
+                  <div class="text-[10px] text-emerald-600 font-bold">Hemat Ekstra Rp 19.000 — Bisa Couple</div>
+                </div>
+              </div>
+              <div class="text-xs font-black text-slate-900">Rp 159.000</div>
+            </label>
+
           </div>
         </div>
 
+        <!-- KAOS PERTAMA -->
+        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
+          <span class="block text-[11px] font-black text-slate-800 uppercase tracking-wide" id="item1Label">
+            👕 Pilihan Kaos:
+          </span>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-[10px] font-bold text-slate-600 mb-1">Model / Varian</label>
+              <select id="item1_variant" class="w-full px-2.5 py-2.5 rounded-lg border border-slate-300 text-xs bg-white focus:ring-2 focus:ring-slate-900 focus:outline-none font-medium">
+                <option value="Hitam Floral">Hitam Floral</option>
+                <option value="Hitam Kotak">Hitam Kotak</option>
+                <option value="Putih Floral">Putih Floral</option>
+                <option value="Putih Kotak">Putih Kotak</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[10px] font-bold text-slate-600 mb-1">Ukuran (Size)</label>
+              <select id="item1_size" class="w-full px-2.5 py-2.5 rounded-lg border border-slate-300 text-xs bg-white focus:ring-2 focus:ring-slate-900 focus:outline-none font-medium">
+                <option value="S">S</option>
+                <option value="M">M</option>
+                <option value="L" selected>L (Standar)</option>
+                <option value="XL">XL</option>
+                <option value="2XL">2XL</option>
+                <option value="3XL">3XL</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- KAOS KEDUA (TERSEMBUNYI SAAT DEFAULT 1 PCS) -->
+        <div id="boxItem2" class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2 hidden">
+          <span class="block text-[11px] font-black text-rose-600 uppercase tracking-wide">
+            👕 Kaos Kedua (Pasangan / Cadangan):
+          </span>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-[10px] font-bold text-slate-600 mb-1">Model / Varian</label>
+              <select id="item2_variant" class="w-full px-2.5 py-2.5 rounded-lg border border-slate-300 text-xs bg-white focus:ring-2 focus:ring-slate-900 focus:outline-none font-medium">
+                <option value="Putih Kotak" selected>Putih Kotak</option>
+                <option value="Hitam Floral">Hitam Floral</option>
+                <option value="Hitam Kotak">Hitam Kotak</option>
+                <option value="Putih Floral">Putih Floral</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[10px] font-bold text-slate-600 mb-1">Ukuran (Size)</label>
+              <select id="item2_size" class="w-full px-2.5 py-2.5 rounded-lg border border-slate-300 text-xs bg-white focus:ring-2 focus:ring-slate-900 focus:outline-none font-medium">
+                <option value="S">S</option>
+                <option value="M" selected>M (Pas untuk Istri)</option>
+                <option value="L">L</option>
+                <option value="XL">XL</option>
+                <option value="2XL">2XL</option>
+                <option value="3XL">3XL</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Data Pembeli -->
         <div>
-          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nama Lengkap</label>
-          <input type="text" id="customer_name" required placeholder="Contoh: Roy Hamdani"
-            class="w-full px-3 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-slate-900 focus:outline-none text-sm">
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nama Lengkap Penerima</label>
+          <input type="text" id="customer_name" required placeholder="Contoh: Budi Santoso"
+            class="w-full px-3 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-slate-900 focus:outline-none text-xs">
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nomor WhatsApp</label>
-          <input type="tel" id="whatsapp" required placeholder="Contoh: 08123456789"
-            class="w-full px-3 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-slate-900 focus:outline-none text-sm">
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nomor WhatsApp Aktif</label>
+          <input type="tel" id="whatsapp" required inputmode="numeric" placeholder="Contoh: 08123456789"
+            class="w-full px-3 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-slate-900 focus:outline-none text-xs">
         </div>
 
-        <!-- Wilayah Berjenjang Otomatis via API -->
-        <div class="space-y-3 pt-2 border-t border-slate-100">
+        <!-- Dropdown Wilayah Berjenjang -->
+        <div class="space-y-2.5 pt-2 border-t border-slate-100">
           <div>
             <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Provinsi</label>
-            <select id="province" required class="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm bg-white focus:ring-2 focus:ring-slate-900 focus:outline-none">
+            <select id="province" required class="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-xs bg-white focus:ring-2 focus:ring-slate-900 focus:outline-none">
               <option value="">-- Pilih Provinsi --</option>
             </select>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
             <div>
               <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Kota / Kabupaten</label>
-              <select id="city" required disabled class="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm bg-slate-100 focus:ring-2 focus:ring-slate-900 focus:outline-none">
+              <select id="city" required disabled class="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-xs bg-slate-100 focus:ring-2 focus:ring-slate-900 focus:outline-none">
                 <option value="">Pilih Provinsi Dahulu</option>
               </select>
             </div>
 
             <div>
               <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Kecamatan</label>
-              <select id="district" required disabled class="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm bg-slate-100 focus:ring-2 focus:ring-slate-900 focus:outline-none">
+              <select id="district" required disabled class="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-xs bg-slate-100 focus:ring-2 focus:ring-slate-900 focus:outline-none">
                 <option value="">Pilih Kota Dahulu</option>
               </select>
             </div>
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Detail Alamat Lengkap</label>
-            <textarea id="address_detail" required rows="2" placeholder="Nama Jalan, No. Rumah, RT/RW, atau patokan tempat"
-              class="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-slate-900 focus:outline-none"></textarea>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Detail Alamat Lengkap (Jalan, RT/RW, Patokan)</label>
+            <textarea id="address_detail" required rows="2" placeholder="Nama Jalan, No Rumah, RT/RW, atau patokan tempat"
+              class="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-xs focus:ring-2 focus:ring-slate-900 focus:outline-none"></textarea>
           </div>
         </div>
 
-        <!-- Metode Pembayaran -->
+        <!-- METODE PEMBAYARAN + INTERAKTIF TRANSFER REKENING -->
         <div class="pt-2 border-t border-slate-100">
           <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Metode Pembayaran</label>
-          <div class="grid grid-cols-2 gap-3">
-            <label class="border rounded-lg p-3 flex items-center gap-2 cursor-pointer hover:border-slate-900 bg-slate-50">
-              <input type="radio" name="payment_method" value="COD" checked class="text-slate-900">
+          <div class="grid grid-cols-2 gap-2">
+            <label class="border-2 border-slate-900 rounded-lg p-2.5 flex items-center gap-2 cursor-pointer bg-slate-50" id="labelCOD">
+              <input type="radio" name="payment_method" value="COD" checked class="text-slate-900" onchange="togglePaymentBox(this.value)">
               <span class="text-xs font-bold">Bayar di Tempat (COD)</span>
             </label>
-            <label class="border rounded-lg p-3 flex items-center gap-2 cursor-pointer hover:border-slate-900 bg-slate-50">
-              <input type="radio" name="payment_method" value="Transfer" class="text-slate-900">
+            <label class="border border-slate-200 rounded-lg p-2.5 flex items-center gap-2 cursor-pointer hover:border-slate-400" id="labelTransfer">
+              <input type="radio" name="payment_method" value="Transfer Bank" class="text-slate-900" onchange="togglePaymentBox(this.value)">
               <span class="text-xs font-bold">Transfer Bank</span>
             </label>
           </div>
+
+          <!-- KOTAK PILIHAN REKENING BANK TRANSFER RESMI -->
+          <div id="transferBox" class="mt-3 p-3.5 bg-slate-50 rounded-2xl border-2 border-slate-300 space-y-2.5 hidden">
+            <div class="flex items-center justify-between border-b border-slate-200 pb-1.5">
+              <span class="text-[11px] font-black text-slate-900 uppercase">
+                Rekening Pembayaran Resmi:
+              </span>
+              <span class="text-[10px] text-emerald-700 font-bold bg-emerald-100 px-2 py-0.5 rounded-full">
+                Bebas Antre
+              </span>
+            </div>
+
+            <!-- 1. BANK BCA -->
+            <div class="bg-white p-2.5 rounded-xl border border-slate-200 flex items-center justify-between shadow-xs">
+              <div>
+                <span class="text-[10px] font-bold text-blue-700 block uppercase">Bank BCA</span>
+                <span class="text-xs font-black text-slate-900 font-mono tracking-wider" id="rekBCA">2820110440</span>
+                <span class="text-[10px] text-slate-500 block">a.n. Roy Hamdani Simarmata</span>
+              </div>
+              <button type="button" onclick="copyRekening('rekBCA', this)" class="bg-slate-900 hover:bg-black text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition active:scale-95">
+                Salin
+              </button>
+            </div>
+
+            <!-- 2. BANK MANDIRI -->
+            <div class="bg-white p-2.5 rounded-xl border border-slate-200 flex items-center justify-between shadow-xs">
+              <div>
+                <span class="text-[10px] font-bold text-amber-600 block uppercase">Bank Mandiri</span>
+                <span class="text-xs font-black text-slate-900 font-mono tracking-wider" id="rekMandiri">1310015910641</span>
+                <span class="text-[10px] text-slate-500 block">a.n. Roy Hamdani Simarmata</span>
+              </div>
+              <button type="button" onclick="copyRekening('rekMandiri', this)" class="bg-slate-900 hover:bg-black text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition active:scale-95">
+                Salin
+              </button>
+            </div>
+
+            <!-- 3. SEA BANK -->
+            <div class="bg-white p-2.5 rounded-xl border border-slate-200 flex items-center justify-between shadow-xs">
+              <div>
+                <span class="text-[10px] font-bold text-orange-600 block uppercase">SeaBank</span>
+                <span class="text-xs font-black text-slate-900 font-mono tracking-wider" id="rekSeaBank">901759867575</span>
+                <span class="text-[10px] text-slate-500 block">a.n. Roy Hamdani Simarmata</span>
+              </div>
+              <button type="button" onclick="copyRekening('rekSeaBank', this)" class="bg-slate-900 hover:bg-black text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition active:scale-95">
+                Salin
+              </button>
+            </div>
+
+            <div class="bg-amber-50 border border-amber-200 text-amber-900 p-2.5 rounded-xl text-[10px] leading-relaxed">
+              💡 <b>Cara Pembayaran:</b> Tekan tombol <b>Salin</b> pada rekening tujuan Anda di atas, lalu transfer via m-Banking/ATM sesuai tagihan. Setelah checkout, kirim bukti transfer ke WhatsApp agar paket langsung dikirim prioritas.
+            </div>
+          </div>
         </div>
 
+        <!-- Tombol Submit -->
         <button type="submit" id="submitBtn"
-          class="w-full py-4 bg-slate-900 hover:bg-black text-white font-black text-base rounded-xl shadow-xl transition active:scale-[0.98]">
-          PESAN SEKARANG
+          class="w-full py-4 bg-rose-600 hover:bg-rose-700 text-white font-black text-sm rounded-xl shadow-lg transition active:scale-95 uppercase tracking-wider">
+          KIRIM PESANAN SEKARANG
         </button>
+
+        <!-- Trust Badges -->
+        <div class="pt-3 border-t border-slate-100 grid grid-cols-3 gap-2 text-center text-[10px] text-slate-500 font-medium">
+          <div class="flex flex-col items-center">
+            <span class="text-sm">🛡️</span>
+            <span>Garansi 100% Asli</span>
+          </div>
+          <div class="flex flex-col items-center">
+            <span class="text-sm">📦</span>
+            <span>Bisa COD / Transfer</span>
+          </div>
+          <div class="flex flex-col items-center">
+            <span class="text-sm">🔄</span>
+            <span>Boleh Tukar Ukuran</span>
+          </div>
+        </div>
       </form>
+    </div>
+
+    <!-- FAQ Accordion -->
+    <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm space-y-2.5">
+      <h3 class="font-black text-slate-900 text-xs uppercase tracking-wide">Pertanyaan Yang Sering Ditanyakan (FAQ)</h3>
+      
+      <div class="border-b pb-2 text-xs">
+        <p class="font-bold text-slate-800">Q: Berapa lama paket sampai ke rumah saya?</p>
+        <p class="text-slate-500 text-[11px] mt-0.5">Pengiriman diproses hari ini. Estimasi tiba 2–4 hari kerja tergantung lokasi kecamatan kamu.</p>
+      </div>
+
+      <div class="border-b pb-2 text-xs">
+        <p class="font-bold text-slate-800">Q: Kalau salah pilih ukuran, apakah boleh tukar?</p>
+        <p class="text-slate-500 text-[11px] mt-0.5">Boleh! Hubungi admin CS kami via WhatsApp begitu paket tiba untuk panduan tukar ukuran kaos.</p>
+      </div>
+
+      <div class="text-xs">
+        <p class="font-bold text-slate-800">Q: Bagaimana jika bayar via transfer?</p>
+        <p class="text-slate-500 text-[11px] mt-0.5">Transfer sesuai nominal ke rekening resmi BCA, Mandiri, atau SeaBank di atas. Pesanan otomatis dipacking prioritas tanpa repot cari uang pas saat kurir datang.</p>
+      </div>
     </div>
   </main>
 
   <script>
+    // 1. FUNGSI COPY REKENING SATU KLIK
+    function copyRekening(elementId, btn) {
+      const rek = document.getElementById(elementId).textContent.trim();
+      navigator.clipboard.writeText(rek).then(() => {
+        const originalText = btn.textContent;
+        btn.textContent = 'Tersalin!';
+        btn.classList.remove('bg-slate-900');
+        btn.classList.add('bg-emerald-600');
+        setTimeout(() => {
+          btn.textContent = originalText;
+          btn.classList.remove('bg-emerald-600');
+          btn.classList.add('bg-slate-900');
+        }, 1500);
+      });
+    }
+
+    // 2. COUNTDOWN TIMER
+    let timeLeft = 14 * 60 + 59;
+    const timerElem = document.getElementById('countdownTimer');
+    setInterval(() => {
+      if (timeLeft <= 0) timeLeft = 15 * 60;
+      const minutes = Math.floor(timeLeft / 60);
+      const seconds = timeLeft % 60;
+      timerElem.textContent = `${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+      timeLeft--;
+    }, 1000);
+
+    // 3. PREVIEW FOTO
+    function previewVariant(imgSrc, badgeTitle, btnElement) {
+      document.getElementById('mainProductImg').src = imgSrc;
+      document.getElementById('badgeModelName').textContent = badgeTitle;
+      document.querySelectorAll('.variant-thumb').forEach(btn => {
+        btn.classList.remove('active', 'border-slate-900');
+        btn.classList.add('border-slate-200');
+      });
+      if (btnElement) {
+        btnElement.classList.add('active', 'border-slate-900');
+        btnElement.classList.remove('border-slate-200');
+      }
+    }
+
+    // 4. LOGIKA KONTROL FORM PAKET (DEFAULT 1 PCS)
+    function handlePackageChange(radio) {
+      document.querySelectorAll('.option-card').forEach(card => {
+        card.classList.remove('active', 'border-slate-900');
+        card.classList.add('border-slate-200');
+      });
+      radio.closest('.option-card').classList.add('active', 'border-slate-900');
+      radio.closest('.option-card').classList.remove('border-slate-200');
+
+      const isPackage2 = radio.value.includes('2 Pcs');
+      const boxItem2 = document.getElementById('boxItem2');
+      const item1Label = document.getElementById('item1Label');
+
+      if (isPackage2) {
+        boxItem2.classList.remove('hidden');
+        item1Label.textContent = '👕 Kaos Pertama:';
+        if (document.getElementById('displayPriceLabel')) {
+          document.getElementById('displayPriceLabel').textContent = 'Harga Paket Hemat (Dapat 2 Pcs)';
+        }
+        document.getElementById('stickySubtitle').textContent = 'Harga Paket Hemat (2 Pcs)';
+      } else {
+        boxItem2.classList.add('hidden');
+        item1Label.textContent = '👕 Pilihan Kaos:';
+        if (document.getElementById('displayPriceLabel')) {
+          document.getElementById('displayPriceLabel').textContent = 'Harga Promo (1 Pcs)';
+        }
+        document.getElementById('stickySubtitle').textContent = 'Harga Promo (1 Pcs)';
+      }
+
+      const price = parseInt(radio.getAttribute('data-price') || 0);
+      const formattedPrice = 'Rp ' + price.toLocaleString('id-ID');
+      if (document.getElementById('displayPrice')) {
+        document.getElementById('displayPrice').textContent = formattedPrice;
+      }
+      document.getElementById('stickyPrice').textContent = formattedPrice;
+    }
+
+    // 5. KONTROL TAMPILAN TRANSFER REKENING
+    function togglePaymentBox(method) {
+      const transferBox = document.getElementById('transferBox');
+      const labelCOD = document.getElementById('labelCOD');
+      const labelTransfer = document.getElementById('labelTransfer');
+
+      if (method.includes('Transfer')) {
+        transferBox.classList.remove('hidden');
+        labelTransfer.classList.add('border-2', 'border-slate-900', 'bg-slate-50');
+        labelTransfer.classList.remove('border-slate-200');
+        labelCOD.classList.remove('border-2', 'border-slate-900', 'bg-slate-50');
+        labelCOD.classList.add('border-slate-200');
+      } else {
+        transferBox.classList.add('hidden');
+        labelCOD.classList.add('border-2', 'border-slate-900', 'bg-slate-50');
+        labelCOD.classList.remove('border-slate-200');
+        labelTransfer.classList.remove('border-2', 'border-slate-900', 'bg-slate-50');
+        labelTransfer.classList.add('border-slate-200');
+      }
+    }
+
+    // 6. FAKE ORDER TOAST
+    const fakeOrders = [
+      { name: 'Rudi H.', city: 'Bandung', time: '14 menit yang lalu', qty: '1 Pcs (Hitam Floral)' },
+      { name: 'Bagus Prakoso', city: 'Surabaya', time: '28 menit yang lalu', qty: '2 Pcs (Couple)' },
+      { name: 'Dedi Kurniawan', city: 'Tangerang', time: '35 menit yang lalu', qty: '1 Pcs (Putih Kotak)' },
+      { name: 'Arief W.', city: 'Bekasi', time: '9 menit yang lalu', qty: '1 Pcs (Hitam Kotak)' },
+      { name: 'Fajar Pratama', city: 'Semarang', time: '22 menit yang lalu', qty: '2 Pcs (Hitam & Putih)' }
+    ];
+
+    function showOrderPopup() {
+      const toast = document.getElementById('liveOrderToast');
+      const randomOrder = fakeOrders[Math.floor(Math.random() * fakeOrders.length)];
+
+      document.getElementById('toastCustomer').textContent = `${randomOrder.name} (${randomOrder.city})`;
+      document.getElementById('toastProduct').textContent = randomOrder.qty;
+      document.getElementById('toastTime').textContent = randomOrder.time;
+
+      toast.classList.remove('-translate-x-full', 'opacity-0');
+      toast.classList.add('translate-x-0', 'opacity-100');
+
+      setTimeout(() => {
+        toast.classList.remove('translate-x-0', 'opacity-100');
+        toast.classList.add('-translate-x-full', 'opacity-0');
+      }, 4500);
+    }
+
+    setTimeout(() => {
+      showOrderPopup();
+      setInterval(showOrderPopup, 13000);
+    }, 3500);
+
+    // 7. API WILAYAH INDONESIA
     const provSelect = document.getElementById('province');
     const citySelect = document.getElementById('city');
     const distSelect = document.getElementById('district');
-    const pkgSelect = document.getElementById('package');
 
-    // Update display harga dinamis
-    pkgSelect.addEventListener('change', () => {
-      const selected = pkgSelect.options[pkgSelect.selectedIndex];
-      const price = parseInt(selected.getAttribute('data-price') || 0);
-      document.getElementById('priceDisplay').textContent = 'Rp ' + price.toLocaleString('id-ID');
-    });
-
-    // 1. Muat Provinsi
     async function loadProvinces() {
       try {
         const res = await fetch('https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json');
@@ -214,11 +643,10 @@
           provSelect.appendChild(opt);
         });
       } catch (err) {
-        console.error('Gagal mengambil provinsi:', err);
+        console.error(err);
       }
     }
 
-    // 2. Muat Kota
     provSelect.addEventListener('change', async function() {
       citySelect.innerHTML = '<option value="">Memuat Kota...</option>';
       distSelect.innerHTML = '<option value="">Pilih Kota Dahulu</option>';
@@ -227,10 +655,7 @@
       citySelect.classList.add('bg-slate-100');
       distSelect.classList.add('bg-slate-100');
 
-      if (!this.value) {
-        citySelect.innerHTML = '<option value="">Pilih Provinsi Dahulu</option>';
-        return;
-      }
+      if (!this.value) return;
 
       try {
         const res = await fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/regencies/${this.value}.json`);
@@ -246,20 +671,16 @@
         citySelect.disabled = false;
         citySelect.classList.remove('bg-slate-100');
       } catch (err) {
-        console.error('Gagal mengambil kota:', err);
+        console.error(err);
       }
     });
 
-    // 3. Muat Kecamatan
     citySelect.addEventListener('change', async function() {
       distSelect.innerHTML = '<option value="">Memuat Kecamatan...</option>';
       distSelect.disabled = true;
       distSelect.classList.add('bg-slate-100');
 
-      if (!this.value) {
-        distSelect.innerHTML = '<option value="">Pilih Kota Dahulu</option>';
-        return;
-      }
+      if (!this.value) return;
 
       try {
         const res = await fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/districts/${this.value}.json`);
@@ -275,13 +696,13 @@
         distSelect.disabled = false;
         distSelect.classList.remove('bg-slate-100');
       } catch (err) {
-        console.error('Gagal mengambil kecamatan:', err);
+        console.error(err);
       }
     });
 
     loadProvinces();
 
-    // 4. Submit Order ke Supabase
+    // 8. SUBMIT PESANAN KE SUPABASE
     document.getElementById('orderForm').addEventListener('submit', async (e) => {
       e.preventDefault();
 
@@ -295,13 +716,22 @@
       const streetDetail = document.getElementById('address_detail').value;
       const fullAddress = `${streetDetail}, Kec. ${distName}, ${cityName}, Prov. ${provName}`;
 
-      const selectedPkg = pkgSelect.options[pkgSelect.selectedIndex];
-      const totalPrice = parseInt(selectedPkg.getAttribute('data-price') || 0);
+      const selectedPkgRadio = document.querySelector('input[name="pkg_option"]:checked');
+      const totalPrice = parseInt(selectedPkgRadio.getAttribute('data-price') || 0);
+      const isPackage2 = selectedPkgRadio.value.includes('2 Pcs');
 
-      const colorVal = document.getElementById('color').value;
-      const sizeVal = document.getElementById('size').value;
-      // Menggabungkan paket + warna + size ke kolom variant Supabase
-      const variantDetails = `${selectedPkg.value} | Warna: ${colorVal} | Size: ${sizeVal}`;
+      const item1Var = document.getElementById('item1_variant').value;
+      const item1Size = document.getElementById('item1_size').value;
+      
+      let variantDetails = `[Kaos 1: ${item1Var} (${item1Size})]`;
+
+      if (isPackage2) {
+        const item2Var = document.getElementById('item2_variant').value;
+        const item2Size = document.getElementById('item2_size').value;
+        variantDetails += ` + [Kaos 2: ${item2Var} (${item2Size})]`;
+      }
+
+      const paymentChosen = document.querySelector('input[name="payment_method"]:checked').value;
 
       const orderData = {
         product_slug: document.getElementById('product_slug').value,
@@ -313,9 +743,9 @@
         district: distName,
         address: fullAddress,
         variant: variantDetails,
-        quantity: 1,
+        quantity: isPackage2 ? 2 : 1,
         total_price: totalPrice,
-        payment_method: document.querySelector('input[name="payment_method"]:checked').value,
+        payment_method: paymentChosen,
         status: 'pending'
       };
 
@@ -327,12 +757,13 @@
           product: orderData.product_name,
           total: orderData.total_price,
           whatsapp: orderData.whatsapp,
-          address: fullAddress
+          address: fullAddress,
+          payment: paymentChosen
         }));
         window.location.href = '../success.html';
       } else {
-        alert('Gagal mengirim data: ' + error.message);
-        btn.innerText = 'PESAN SEKARANG';
+        alert('Gagal mengirim pesanan: ' + error.message);
+        btn.innerText = 'KIRIM PESANAN SEKARANG';
         btn.disabled = false;
       }
     });
