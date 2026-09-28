@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pesanan Berhasil Diterima</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 flex items-center justify-center min-h-screen p-4">
+  <div class="max-w-md w-full bg-white p-8 rounded-2xl shadow-md text-center border border-gray-100">
+    <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+      <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+      </svg>
+    </div>
+
+    <h1 class="text-2xl font-bold text-gray-900">Pesanan Berhasil!</h1>
+    <p class="text-gray-600 text-sm mt-2">Terima kasih, tim kami akan segera memproses pengiriman paket Anda.</p>
+
+    <div id="orderSummary" class="bg-gray-50 p-4 rounded-xl mt-6 text-left text-sm space-y-1 border">
+      <!-- Data ringkasan pesanan akan muncul di sini via script -->
+    </div>
+
+    <p class="text-xs text-gray-400 mt-6">Harap pastikan nomor WhatsApp Anda aktif untuk konfirmasi resi kurir.</p>
+  </div>
+
+  <script>
+    const order = JSON.parse(sessionStorage.getItem('last_order') || '{}');
+    if (order.name) {
+      document.getElementById('orderSummary').innerHTML = `
+        <div class="flex justify-between"><span>Nama:</span> <b>${order.name}</b></div>
+        <div class="flex justify-between"><span>Produk:</span> <b>${order.product}</b></div>
+        <div class="flex justify-between"><span>Total Tagihan:</span> <b>Rp ${order.total.toLocaleString('id-ID')}</b></div>
+      `;
+    }
+  </script>
+</body>
+</html>

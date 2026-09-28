@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Sales Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase.js"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen">
+
+  <div class="max-w-7xl mx-auto p-4 md:p-8">
+    <!-- Header Admin -->
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+      <div>
+        <h1 class="text-2xl font-black text-slate-900 tracking-tight">Pesanan Masuk (Realtime)</h1>
+        <p class="text-xs text-slate-500 mt-1" id="userEmail">Memeriksa sesi login...</p>
+      </div>
+      <div class="flex items-center gap-2 flex-wrap">
+        <select id="filterProduct" onchange="filterOrders()" class="bg-white border rounded-lg px-3 py-2 text-xs shadow-sm">
+          <option value="ALL">Semua Produk</option>
+        </select>
+        <button onclick="exportToCSV()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-xs font-semibold shadow-sm transition">
+          Export Excel/CSV
+        </button>
+        <button onclick="handleLogout()" class="bg-rose-500 hover:bg-rose-600 text-white px-3 py-2 rounded-lg text-xs font-semibold shadow-sm transition">
+          Keluar
+        </button>
+      </div>
+    </header>
+
+    <!-- Ringkasan Statistik -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Pesanan</span>
+        <div id="statTotalOrders" class="text-2xl font-black text-slate-800 mt-1">0</div>
+      </div>
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Perlu Follow-Up (Pending)</span>
+        <div id="statPendingOrders" class="text-2xl font-black text-amber-500 mt-1">0</div>
+      </div>
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Omzet Potensial</span>
+        <div id="statTotalRevenue" class="text-2xl font-black text-emerald-600 mt-1">Rp 0</div>
+      </div>
+    </div>
+
+    <!-- Tabel Pesanan -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-sm">
+          <thead class="bg-slate-100 text-slate-600 font-bold uppercase text-xs border-b">
+            <tr>
+              <th class="p-3">Waktu</th>
+              <th class="p-3">Produk</th>
+              <th class="p-3">Pelanggan</th>
+              <th class="p-3">Varian</th>
+              <th class="p-3">Metode & Total</th>
+              <th class="p-3">Alamat</th>
+              <th class="p-3">Status</th>
+              <th class="p-3 text-center">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="orderList" class="divide-y divide-slate-100">
+            <tr>
+              <td colspan="8" class="p-6 text-center text-slate-400 text-xs">Memuat data pesanan...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let allOrders = [];
+
+    // Proteksi Auth: Cek sesi sebelum menampilkan data
+    async function checkAuth() {
+      const { data: { session } } = await sbClient.auth.getSession();
+      if (!session) {
+        window.location.href = 'index.html';
+        return;
+      }
+      document.getElementById('userEmail').textContent = `Login sebagai: ${session.user.email}`;
+      fetchOrders();
+    }
+
+    async function handleLogout() {
+      await sbClient.auth.signOut();
+      window.location.href = 'index.html';
+    }
+
+    async function fetchOrders() {
+      const { data, error } = await sbClient
+        .from('orders')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error(error.message);
+        return;
+      }
+
+      allOrders = data || [];
+      populateFilterOptions();
+      renderOrders(allOrders);
+      updateStats(allOrders);
+    }
+
+    function populateFilterOptions() {
+      const filterSelect = document.getElementById('filterProduct');
+      const currentVal = filterSelect.value;
+      const products = [...new Set(allOrders.map(o => o.product_name))];
+
+      filterSelect.innerHTML = '<option value="ALL">Semua Produk</option>';
+      products.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p;
+        opt.textContent = p;
+        filterSelect.appendChild(opt);
+      });
+      filterSelect.value = currentVal;
+    }
+
+    function filterOrders() {
+      const val = document.getElementById('filterProduct').value;
+      const filtered = val === 'ALL' ? allOrders : allOrders.filter(o => o.product_name === val);
+      renderOrders(filtered);
+      updateStats(filtered);
+    }
+
+    function updateStats(orders) {
+      document.getElementById('statTotalOrders').textContent = orders.length;
+      document.getElementById('statPendingOrders').textContent = orders.filter(o => o.status === 'pending').length;
+      const totalRev = orders.reduce((acc, curr) => acc + (Number(curr.total_price) || 0), 0);
+      document.getElementById('statTotalRevenue').textContent = 'Rp ' + totalRev.toLocaleString('id-ID');
+    }
+
+    function renderOrders(orders) {
+      const tbody = document.getElementById('orderList');
+      tbody.innerHTML = '';
+
+      if (orders.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-400 text-xs">Belum ada pesanan masuk.</td></tr>`;
+        return;
+      }
+
+      orders.forEach(order => {
+        const cleanPhone = order.whatsapp.replace(/[^0-9]/g, '').replace(/^0/, '62');
+        const waText = encodeURIComponent(
+          `Halo Kak ${order.customer_name}, konfirmasi pesanan:\n` +
+          `• Produk: ${order.product_name} (${order.variant})\n` +
+          `• Total: Rp ${Number(order.total_price).toLocaleString('id-ID')} (${order.payment_method})\n` +
+          `• Alamat: ${order.address}\n\nApakah alamat ini sudah benar dan siap dikirim?`
+        );
+        const waUrl = `https://wa.me/${cleanPhone}?text=${waText}`;
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50 transition text-xs';
+        tr.innerHTML = `
+          <td class="p-3 text-slate-500 whitespace-nowrap">
+            ${new Date(order.created_at).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })}
+          </td>
+          <td class="p-3 font-semibold text-slate-900">${order.product_name}</td>
+          <td class="p-3">
+            <div class="font-medium text-slate-800">${order.customer_name}</div>
+            <div class="text-slate-400">${order.whatsapp}</div>
+          </td>
+          <td class="p-3"><span class="bg-slate-100 px-2 py-0.5 rounded text-slate-700">${order.variant || '-'}</span></td>
+          <td class="p-3">
+            <div class="font-bold text-emerald-700">Rp ${Number(order.total_price).toLocaleString('id-ID')}</div>
+            <div class="text-slate-400">${order.payment_method}</div>
+          </td>
+          <td class="p-3 text-slate-500 max-w-xs truncate" title="${order.address}">${order.address}</td>
+          <td class="p-3">
+            <select onchange="updateOrderStatus('${order.id}', this.value)" class="border rounded px-2 py-1 bg-white font-medium">
+              <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Pending</option>
+              <option value="confirmed" ${order.status === 'confirmed' ? 'selected' : ''}>Confirmed</option>
+              <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>Shipped</option>
+              <option value="canceled" ${order.status === 'canceled' ? 'selected' : ''}>Canceled</option>
+            </select>
+          </td>
+          <td class="p-3 text-center">
+            <a href="${waUrl}" target="_blank" class="inline-flex items-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg font-bold shadow-sm transition">
+              WA CS
+            </a>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function updateOrderStatus(orderId, newStatus) {
+      const { error } = await sbClient
+        .from('orders')
+        .update({ status: newStatus })
+        .eq('id', orderId);
+
+      if (error) alert('Gagal update status: ' + error.message);
+    }
+
+    function exportToCSV() {
+      if (allOrders.length === 0) return alert('Tidak ada data pesanan.');
+      let csv = 'Waktu,Produk,Nama,WhatsApp,Varian,Total,Metode,Alamat,Status\n';
+      allOrders.forEach(o => {
+        csv += `"${o.created_at}","${o.product_name}","${o.customer_name}","${o.whatsapp}","${o.variant}","${o.total_price}","${o.payment_method}","${o.address.replace(/"/g, '""')}","${o.status}"\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `orders_${new Date().toISOString().slice(0, 10)}.csv`;
+      link.click();
+    }
+
+    // Supabase Realtime Listener
+    sbClient.channel('realtime-orders')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => {
+        fetchOrders();
+      })
+      .subscribe();
+
+    // Jalankan pemeriksaan otentikasi saat load
+    checkAuth();
+  </script>
+</body>
+</html>
