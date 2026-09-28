@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Promo Kaos Oversize Premium</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase.js"></script>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="bg-slate-100 text-slate-800 antialiased">
+
+  <!-- Promo Top Bar -->
+  <div class="bg-black text-white text-center py-2 px-4 text-xs font-semibold tracking-wider uppercase">
+    ⚡ Flash Sale Spesial Hari Ini — Bayar di Tempat (COD) Seluruh Indonesia
+  </div>
+
+  <main class="max-w-xl mx-auto p-4 space-y-5">
+    
+    <!-- Bagian Visual & Penawaran Produk -->
+    <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+      <div class="h-80 bg-slate-200 rounded-xl flex items-center justify-center text-slate-400 font-bold mb-4 overflow-hidden">
+        <!-- Ganti dengan tag <img src="link-foto-kaos.jpg" class="w-full h-full object-cover"> -->
+        [ Foto Utama Kaos Premium ]
+      </div>
+
+      <div class="flex items-center gap-2 mb-2">
+        <span class="bg-amber-100 text-amber-800 text-[11px] font-extrabold px-2.5 py-0.5 rounded-full uppercase">Cotton Combed 24s</span>
+        <span class="bg-rose-100 text-rose-700 text-[11px] font-extrabold px-2.5 py-0.5 rounded-full uppercase">Diskon 50%</span>
+      </div>
+
+      <h1 class="text-xl font-black text-slate-900 leading-tight">Kaos Oversize Signature Edition</h1>
+      <p class="text-xs text-slate-500 mt-1">Potongan rileks kekinian, serat katun murni yang adem, tebal pas, dan tidak menerawang.</p>
+
+      <!-- Harga -->
+      <div class="mt-4 flex items-baseline gap-3">
+        <span class="text-3xl font-black text-slate-900" id="priceDisplay">Rp 89.000</span>
+        <span class="text-sm text-slate-400 line-through">Rp 179.000</span>
+      </div>
+
+      <!-- Fitur Keunggulan Singkat -->
+      <div class="grid grid-cols-3 gap-2 mt-5 pt-4 border-t border-slate-100 text-center text-xs">
+        <div class="p-2 bg-slate-50 rounded-lg">
+          <div class="font-bold text-slate-900">Anti Gerah</div>
+          <div class="text-[10px] text-slate-500">100% Katun Murni</div>
+        </div>
+        <div class="p-2 bg-slate-50 rounded-lg">
+          <div class="font-bold text-slate-900">Jahitan Rantai</div>
+          <div class="text-[10px] text-slate-500">Kuat & Tahan Lama</div>
+        </div>
+        <div class="p-2 bg-slate-50 rounded-lg">
+          <div class="font-bold text-slate-900">Pola Oversize</div>
+          <div class="text-[10px] text-slate-500">Jatuh Rapi di Badan</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panduan Ukuran (Size Chart) Ringkas -->
+    <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm text-xs">
+      <h3 class="font-bold text-slate-900 mb-2 flex items-center gap-1.5">
+        <span>📏</span> Panduan Ukuran (Size Chart):
+      </h3>
+      <div class="grid grid-cols-4 text-center border rounded-lg overflow-hidden bg-slate-50">
+        <div class="p-2 border-r font-bold">Size</div>
+        <div class="p-2 border-r font-bold">M</div>
+        <div class="p-2 border-r font-bold">L</div>
+        <div class="p-2 font-bold">XL</div>
+
+        <div class="p-2 border-r border-t bg-white">Lebar</div>
+        <div class="p-2 border-r border-t bg-white">54 cm</div>
+        <div class="p-2 border-r border-t bg-white">57 cm</div>
+        <div class="p-2 border-t bg-white">60 cm</div>
+
+        <div class="p-2 border-r border-t bg-white">Panjang</div>
+        <div class="p-2 border-r border-t bg-white">70 cm</div>
+        <div class="p-2 border-r border-t bg-white">73 cm</div>
+        <div class="p-2 border-t bg-white">76 cm</div>
+      </div>
+    </div>
+
+    <!-- Form Pemesanan Khusus Kaos -->
+    <div class="bg-white p-6 rounded-2xl shadow-lg border-2 border-slate-900">
+      <h2 class="text-lg font-black text-slate-900 mb-1">Form Pemesanan Cepat</h2>
+      <p class="text-xs text-slate-500 mb-4">Isi pilihan warna, ukuran, dan alamat pengiriman Anda:</p>
+
+      <form id="orderForm" class="space-y-4">
+        <!-- Slug & Nama Produk untuk Supabase -->
+        <input type="hidden" id="product_slug" value="kaos-oversize-premium">
+        <input type="hidden" id="product_name" value="Kaos Oversize Signature">
+
+        <!-- Pilihan Paket Bundling (Menaikkan AOV / Rata-rata Nilai Order) -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Pilih Paket Penawaran</label>
+          <select id="package" class="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm font-semibold bg-white focus:ring-2 focus:ring-slate-900 focus:outline-none">
+            <option value="1 Pcs" data-price="89000">Beli 1 Pcs - Rp 89.000</option>
+            <option value="2 Pcs (Promo Terlaris)" data-price="159000" selected>Beli 2 Pcs - Rp 159.000 (Hemat Rp 19.000)</option>
+            <option value="3 Pcs (Paling Hemat)" data-price="219000">Beli 3 Pcs - Rp 219.000 (Hemat Rp 48.000)</option>
+          </select>
+        </div>
+
+        <!-- Pilihan Warna & Ukuran -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Warna</label>
+            <select id="color" class="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm bg-white focus:ring-2 focus:ring-slate-900 focus:outline-none">
+              <option value="Hitam">Hitam Pekat</option>
+              <option value="Putih">Putih Bersih</option>
+              <option value="Sage Green">Sage Green</option>
+              <option value="Navy">Navy Blue</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Ukuran (Size)</label>
+            <select id="size" class="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm bg-white focus:ring-2 focus:ring-slate-900 focus:outline-none">
+              <option value="M">M (Oversize)</option>
+              <option value="L">L (Oversize)</option>
+              <option value="XL">XL (Oversize)</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nama Lengkap</label>
+          <input type="text" id="customer_name" required placeholder="Contoh: Roy Hamdani"
+            class="w-full px-3 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-slate-900 focus:outline-none text-sm">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nomor WhatsApp</label>
+          <input type="tel" id="whatsapp" required placeholder="Contoh: 08123456789"
+            class="w-full px-3 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-slate-900 focus:outline-none text-sm">
+        </div>
+
+        <!-- Wilayah Berjenjang Otomatis via API -->
+        <div class="space-y-3 pt-2 border-t border-slate-100">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Provinsi</label>
+            <select id="province" required class="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm bg-white focus:ring-2 focus:ring-slate-900 focus:outline-none">
+              <option value="">-- Pilih Provinsi --</option>
+            </select>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Kota / Kabupaten</label>
+              <select id="city" required disabled class="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm bg-slate-100 focus:ring-2 focus:ring-slate-900 focus:outline-none">
+                <option value="">Pilih Provinsi Dahulu</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Kecamatan</label>
+              <select id="district" required disabled class="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm bg-slate-100 focus:ring-2 focus:ring-slate-900 focus:outline-none">
+                <option value="">Pilih Kota Dahulu</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Detail Alamat Lengkap</label>
+            <textarea id="address_detail" required rows="2" placeholder="Nama Jalan, No. Rumah, RT/RW, atau patokan tempat"
+              class="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-slate-900 focus:outline-none"></textarea>
+          </div>
+        </div>
+
+        <!-- Metode Pembayaran -->
+        <div class="pt-2 border-t border-slate-100">
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Metode Pembayaran</label>
+          <div class="grid grid-cols-2 gap-3">
+            <label class="border rounded-lg p-3 flex items-center gap-2 cursor-pointer hover:border-slate-900 bg-slate-50">
+              <input type="radio" name="payment_method" value="COD" checked class="text-slate-900">
+              <span class="text-xs font-bold">Bayar di Tempat (COD)</span>
+            </label>
+            <label class="border rounded-lg p-3 flex items-center gap-2 cursor-pointer hover:border-slate-900 bg-slate-50">
+              <input type="radio" name="payment_method" value="Transfer" class="text-slate-900">
+              <span class="text-xs font-bold">Transfer Bank</span>
+            </label>
+          </div>
+        </div>
+
+        <button type="submit" id="submitBtn"
+          class="w-full py-4 bg-slate-900 hover:bg-black text-white font-black text-base rounded-xl shadow-xl transition active:scale-[0.98]">
+          PESAN SEKARANG
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <script>
+    const provSelect = document.getElementById('province');
+    const citySelect = document.getElementById('city');
+    const distSelect = document.getElementById('district');
+    const pkgSelect = document.getElementById('package');
+
+    // Update display harga dinamis
+    pkgSelect.addEventListener('change', () => {
+      const selected = pkgSelect.options[pkgSelect.selectedIndex];
+      const price = parseInt(selected.getAttribute('data-price') || 0);
+      document.getElementById('priceDisplay').textContent = 'Rp ' + price.toLocaleString('id-ID');
+    });
+
+    // 1. Muat Provinsi
+    async function loadProvinces() {
+      try {
+        const res = await fetch('https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json');
+        const provinces = await res.json();
+        provSelect.innerHTML = '<option value="">-- Pilih Provinsi --</option>';
+        provinces.forEach(p => {
+          const opt = document.createElement('option');
+          opt.value = p.id;
+          opt.textContent = p.name;
+          opt.dataset.name = p.name;
+          provSelect.appendChild(opt);
+        });
+      } catch (err) {
+        console.error('Gagal mengambil provinsi:', err);
+      }
+    }
+
+    // 2. Muat Kota
+    provSelect.addEventListener('change', async function() {
+      citySelect.innerHTML = '<option value="">Memuat Kota...</option>';
+      distSelect.innerHTML = '<option value="">Pilih Kota Dahulu</option>';
+      citySelect.disabled = true;
+      distSelect.disabled = true;
+      citySelect.classList.add('bg-slate-100');
+      distSelect.classList.add('bg-slate-100');
+
+      if (!this.value) {
+        citySelect.innerHTML = '<option value="">Pilih Provinsi Dahulu</option>';
+        return;
+      }
+
+      try {
+        const res = await fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/regencies/${this.value}.json`);
+        const cities = await res.json();
+        citySelect.innerHTML = '<option value="">-- Pilih Kota / Kabupaten --</option>';
+        cities.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.id;
+          opt.textContent = c.name;
+          opt.dataset.name = c.name;
+          citySelect.appendChild(opt);
+        });
+        citySelect.disabled = false;
+        citySelect.classList.remove('bg-slate-100');
+      } catch (err) {
+        console.error('Gagal mengambil kota:', err);
+      }
+    });
+
+    // 3. Muat Kecamatan
+    citySelect.addEventListener('change', async function() {
+      distSelect.innerHTML = '<option value="">Memuat Kecamatan...</option>';
+      distSelect.disabled = true;
+      distSelect.classList.add('bg-slate-100');
+
+      if (!this.value) {
+        distSelect.innerHTML = '<option value="">Pilih Kota Dahulu</option>';
+        return;
+      }
+
+      try {
+        const res = await fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/districts/${this.value}.json`);
+        const districts = await res.json();
+        distSelect.innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
+        districts.forEach(d => {
+          const opt = document.createElement('option');
+          opt.value = d.id;
+          opt.textContent = d.name;
+          opt.dataset.name = d.name;
+          distSelect.appendChild(opt);
+        });
+        distSelect.disabled = false;
+        distSelect.classList.remove('bg-slate-100');
+      } catch (err) {
+        console.error('Gagal mengambil kecamatan:', err);
+      }
+    });
+
+    loadProvinces();
+
+    // 4. Submit Order ke Supabase
+    document.getElementById('orderForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const btn = document.getElementById('submitBtn');
+      btn.innerText = 'Memproses Pesanan...';
+      btn.disabled = true;
+
+      const provName = provSelect.options[provSelect.selectedIndex]?.dataset.name || '';
+      const cityName = citySelect.options[citySelect.selectedIndex]?.dataset.name || '';
+      const distName = distSelect.options[distSelect.selectedIndex]?.dataset.name || '';
+      const streetDetail = document.getElementById('address_detail').value;
+      const fullAddress = `${streetDetail}, Kec. ${distName}, ${cityName}, Prov. ${provName}`;
+
+      const selectedPkg = pkgSelect.options[pkgSelect.selectedIndex];
+      const totalPrice = parseInt(selectedPkg.getAttribute('data-price') || 0);
+
+      const colorVal = document.getElementById('color').value;
+      const sizeVal = document.getElementById('size').value;
+      // Menggabungkan paket + warna + size ke kolom variant Supabase
+      const variantDetails = `${selectedPkg.value} | Warna: ${colorVal} | Size: ${sizeVal}`;
+
+      const orderData = {
+        product_slug: document.getElementById('product_slug').value,
+        product_name: document.getElementById('product_name').value,
+        customer_name: document.getElementById('customer_name').value,
+        whatsapp: document.getElementById('whatsapp').value,
+        province: provName,
+        city: cityName,
+        district: distName,
+        address: fullAddress,
+        variant: variantDetails,
+        quantity: 1,
+        total_price: totalPrice,
+        payment_method: document.querySelector('input[name="payment_method"]:checked').value,
+        status: 'pending'
+      };
+
+      const { data, error } = await sbClient.from('orders').insert([orderData]);
+
+      if (!error) {
+        sessionStorage.setItem('last_order', JSON.stringify({
+          name: orderData.customer_name,
+          product: orderData.product_name,
+          total: orderData.total_price,
+          whatsapp: orderData.whatsapp,
+          address: fullAddress
+        }));
+        window.location.href = '../success.html';
+      } else {
+        alert('Gagal mengirim data: ' + error.message);
+        btn.innerText = 'PESAN SEKARANG';
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
