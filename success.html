@@ -3,36 +3,254 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pesanan Berhasil Diterima</title>
+  <title>Penawaran Spesial Produk</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase.js"></script>
 </head>
-<body class="bg-gray-50 flex items-center justify-center min-h-screen p-4">
-  <div class="max-w-md w-full bg-white p-8 rounded-2xl shadow-md text-center border border-gray-100">
-    <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
-      <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
-      </svg>
+<body class="bg-gray-100 text-gray-800 antialiased">
+
+  <header class="bg-white border-b py-4 px-6 text-center shadow-sm">
+    <h1 class="text-2xl font-black text-red-600 tracking-tight">PROMO SPESIAL HARI INI</h1>
+    <p class="text-sm text-gray-600 mt-1">Bisa Bayar di Tempat (COD) ke Seluruh Indonesia</p>
+  </header>
+
+  <main class="max-w-xl mx-auto p-4 space-y-6">
+    <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+      <div class="h-64 bg-gray-200 rounded-xl flex items-center justify-center text-gray-400 font-bold mb-4">
+        [ Pasang Foto / Banner Produk Di Sini ]
+      </div>
+      <h2 id="displayTitle" class="text-xl font-bold">Madu Herbal Alami Super</h2>
+      <p class="text-gray-600 text-sm mt-2 leading-relaxed">
+        Solusi alami untuk meningkatkan daya tahan tubuh. Diracik dari bahan murni 100% tanpa bahan kimia tambahan.
+      </p>
+      <div class="mt-4 flex items-baseline gap-2">
+        <span class="text-2xl font-extrabold text-green-600">Rp 99.000</span>
+        <span class="text-sm text-gray-400 line-through">Rp 189.000</span>
+        <span class="bg-red-100 text-red-700 text-xs px-2 py-0.5 rounded-full font-bold">Hemat 45%</span>
+      </div>
     </div>
 
-    <h1 class="text-2xl font-bold text-gray-900">Pesanan Berhasil!</h1>
-    <p class="text-gray-600 text-sm mt-2">Terima kasih, tim kami akan segera memproses pengiriman paket Anda.</p>
+    <div class="bg-white p-6 rounded-2xl shadow-md border-2 border-green-500">
+      <h3 class="text-lg font-bold text-gray-900 mb-1">Formulir Pesanan Cepat</h3>
+      <p class="text-xs text-gray-500 mb-4">Lengkapi data berikut untuk pengiriman paket:</p>
 
-    <div id="orderSummary" class="bg-gray-50 p-4 rounded-xl mt-6 text-left text-sm space-y-1 border">
-      <!-- Data ringkasan pesanan akan muncul di sini via script -->
+      <form id="orderForm" class="space-y-4">
+        <input type="hidden" id="product_slug" value="madu-herbal">
+        <input type="hidden" id="product_name" value="Madu Herbal Alami Super">
+
+        <div>
+          <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Nama Lengkap</label>
+          <input type="text" id="customer_name" required placeholder="Contoh: Budi Santoso"
+            class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:outline-none text-sm">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Nomor WhatsApp Aktif</label>
+          <input type="tel" id="whatsapp" required placeholder="Contoh: 08123456789"
+            class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:outline-none text-sm">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Pilihan Paket / Variasi</label>
+          <select id="variant" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:outline-none text-sm bg-white">
+            <option value="Paket 1 Botol (Rp 99.000)" data-price="99000">Paket 1 Botol - Rp 99.000</option>
+            <option value="Paket 2 Botol (Rp 179.000)" data-price="179000">Paket 2 Botol - Rp 179.000 (Paling Laris)</option>
+          </select>
+        </div>
+
+        <div class="space-y-3 pt-2 border-t border-gray-100">
+          <div>
+            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Provinsi</label>
+            <select id="province" required class="w-full px-4 py-3 rounded-lg border border-gray-300 text-sm bg-white focus:ring-2 focus:ring-green-500 focus:outline-none">
+              <option value="">-- Pilih Provinsi --</option>
+            </select>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Kota / Kabupaten</label>
+              <select id="city" required disabled class="w-full px-4 py-3 rounded-lg border border-gray-300 text-sm bg-gray-100 focus:ring-2 focus:ring-green-500 focus:outline-none">
+                <option value="">Pilih Provinsi Dahulu</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Kecamatan</label>
+              <select id="district" required disabled class="w-full px-4 py-3 rounded-lg border border-gray-300 text-sm bg-gray-100 focus:ring-2 focus:ring-green-500 focus:outline-none">
+                <option value="">Pilih Kota Dahulu</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Detail Alamat (Nama Jalan, RT/RW, Patokan)</label>
+            <textarea id="address_detail" required rows="2" placeholder="Contoh: Jl. Mawar No. 12, RT 01/RW 03 (Rumah pagar hitam sebelah warung)"
+              class="w-full px-4 py-3 rounded-lg border border-gray-300 text-sm focus:ring-2 focus:ring-green-500 focus:outline-none"></textarea>
+          </div>
+        </div>
+
+        <div class="pt-2 border-t border-gray-100">
+          <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Metode Pembayaran</label>
+          <div class="grid grid-cols-2 gap-3">
+            <label class="border rounded-lg p-3 flex items-center gap-2 cursor-pointer hover:border-green-600">
+              <input type="radio" name="payment_method" value="COD" checked class="text-green-600">
+              <span class="text-xs font-bold">Bayar di Tempat (COD)</span>
+            </label>
+            <label class="border rounded-lg p-3 flex items-center gap-2 cursor-pointer hover:border-green-600">
+              <input type="radio" name="payment_method" value="Transfer" class="text-green-600">
+              <span class="text-xs font-bold">Transfer Bank</span>
+            </label>
+          </div>
+        </div>
+
+        <button type="submit" id="submitBtn"
+          class="w-full py-4 bg-green-600 hover:bg-green-700 text-white font-black text-base rounded-xl shadow-lg transition active:scale-[0.98]">
+          PESAN SEKARANG
+        </button>
+      </form>
     </div>
-
-    <p class="text-xs text-gray-400 mt-6">Harap pastikan nomor WhatsApp Anda aktif untuk konfirmasi resi kurir.</p>
-  </div>
+  </main>
 
   <script>
-    const order = JSON.parse(sessionStorage.getItem('last_order') || '{}');
-    if (order.name) {
-      document.getElementById('orderSummary').innerHTML = `
-        <div class="flex justify-between"><span>Nama:</span> <b>${order.name}</b></div>
-        <div class="flex justify-between"><span>Produk:</span> <b>${order.product}</b></div>
-        <div class="flex justify-between"><span>Total Tagihan:</span> <b>Rp ${order.total.toLocaleString('id-ID')}</b></div>
-      `;
+    const provSelect = document.getElementById('province');
+    const citySelect = document.getElementById('city');
+    const distSelect = document.getElementById('district');
+
+    async function loadProvinces() {
+      try {
+        const res = await fetch('https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json');
+        const provinces = await res.json();
+        provSelect.innerHTML = '<option value="">-- Pilih Provinsi --</option>';
+        provinces.forEach(p => {
+          const opt = document.createElement('option');
+          opt.value = p.id;
+          opt.textContent = p.name;
+          opt.dataset.name = p.name;
+          provSelect.appendChild(opt);
+        });
+      } catch (err) {
+        console.error('Gagal mengambil provinsi:', err);
+      }
     }
+
+    provSelect.addEventListener('change', async function() {
+      citySelect.innerHTML = '<option value="">Memuat Kota...</option>';
+      distSelect.innerHTML = '<option value="">Pilih Kota Dahulu</option>';
+      citySelect.disabled = true;
+      distSelect.disabled = true;
+      citySelect.classList.remove('bg-white');
+      citySelect.classList.add('bg-gray-100');
+      distSelect.classList.remove('bg-white');
+      distSelect.classList.add('bg-gray-100');
+
+      if (!this.value) {
+        citySelect.innerHTML = '<option value="">Pilih Provinsi Dahulu</option>';
+        return;
+      }
+
+      try {
+        const res = await fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/regencies/${this.value}.json`);
+        const cities = await res.json();
+        citySelect.innerHTML = '<option value="">-- Pilih Kota / Kabupaten --</option>';
+        cities.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.id;
+          opt.textContent = c.name;
+          opt.dataset.name = c.name;
+          citySelect.appendChild(opt);
+        });
+        citySelect.disabled = false;
+        citySelect.classList.remove('bg-gray-100');
+        citySelect.classList.add('bg-white');
+      } catch (err) {
+        console.error('Gagal mengambil kota:', err);
+      }
+    });
+
+    citySelect.addEventListener('change', async function() {
+      distSelect.innerHTML = '<option value="">Memuat Kecamatan...</option>';
+      distSelect.disabled = true;
+      distSelect.classList.remove('bg-white');
+      distSelect.classList.add('bg-gray-100');
+
+      if (!this.value) {
+        distSelect.innerHTML = '<option value="">Pilih Kota Dahulu</option>';
+        return;
+      }
+
+      try {
+        const res = await fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/districts/${this.value}.json`);
+        const districts = await res.json();
+        distSelect.innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
+        districts.forEach(d => {
+          const opt = document.createElement('option');
+          opt.value = d.id;
+          opt.textContent = d.name;
+          opt.dataset.name = d.name;
+          distSelect.appendChild(opt);
+        });
+        distSelect.disabled = false;
+        distSelect.classList.remove('bg-gray-100');
+        distSelect.classList.add('bg-white');
+      } catch (err) {
+        console.error('Gagal mengambil kecamatan:', err);
+      }
+    });
+
+    loadProvinces();
+
+    document.getElementById('orderForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const btn = document.getElementById('submitBtn');
+      btn.innerText = 'Mengirim Pesanan...';
+      btn.disabled = true;
+
+      const provName = provSelect.options[provSelect.selectedIndex]?.dataset.name || '';
+      const cityName = citySelect.options[citySelect.selectedIndex]?.dataset.name || '';
+      const distName = distSelect.options[distSelect.selectedIndex]?.dataset.name || '';
+      const streetDetail = document.getElementById('address_detail').value;
+
+      const fullAddress = `${streetDetail}, Kec. ${distName}, ${cityName}, Prov. ${provName}`;
+
+      const variantSelect = document.getElementById('variant');
+      const selectedOption = variantSelect.options[variantSelect.selectedIndex];
+      const totalPrice = parseInt(selectedOption.getAttribute('data-price') || 0);
+
+      const orderData = {
+        product_slug: document.getElementById('product_slug').value,
+        product_name: document.getElementById('product_name').value,
+        customer_name: document.getElementById('customer_name').value,
+        whatsapp: document.getElementById('whatsapp').value,
+        province: provName,
+        city: cityName,
+        district: distName,
+        address: fullAddress,
+        variant: variantSelect.value,
+        quantity: 1,
+        total_price: totalPrice,
+        payment_method: document.querySelector('input[name="payment_method"]:checked').value,
+        status: 'pending'
+      };
+
+      const { data, error } = await sbClient.from('orders').insert([orderData]);
+
+      if (!error) {
+        sessionStorage.setItem('last_order', JSON.stringify({
+          name: orderData.customer_name,
+          product: orderData.product_name,
+          total: orderData.total_price,
+          whatsapp: orderData.whatsapp,
+          address: fullAddress
+        }));
+        window.location.href = '../success.html';
+      } else {
+        alert('Gagal mengirim data: ' + error.message);
+        btn.innerText = 'PESAN SEKARANG';
+        btn.disabled = false;
+      }
+    });
   </script>
 </body>
 </html>

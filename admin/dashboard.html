@@ -11,7 +11,6 @@
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen">
 
   <div class="max-w-7xl mx-auto p-4 md:p-8">
-    <!-- Header Admin -->
     <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
       <div>
         <h1 class="text-2xl font-black text-slate-900 tracking-tight">Pesanan Masuk (Realtime)</h1>
@@ -30,7 +29,6 @@
       </div>
     </header>
 
-    <!-- Ringkasan Statistik -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
       <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
         <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Pesanan</span>
@@ -46,7 +44,6 @@
       </div>
     </div>
 
-    <!-- Tabel Pesanan -->
     <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse text-sm">
@@ -55,9 +52,9 @@
               <th class="p-3">Waktu</th>
               <th class="p-3">Produk</th>
               <th class="p-3">Pelanggan</th>
-              <th class="p-3">Varian</th>
-              <th class="p-3">Metode & Total</th>
-              <th class="p-3">Alamat</th>
+              <th class="p-3">Wilayah</th>
+              <th class="p-3">Total & Metode</th>
+              <th class="p-3">Alamat Lengkap</th>
               <th class="p-3">Status</th>
               <th class="p-3 text-center">Aksi</th>
             </tr>
@@ -75,7 +72,6 @@
   <script>
     let allOrders = [];
 
-    // Proteksi Auth: Cek sesi sebelum menampilkan data
     async function checkAuth() {
       const { data: { session } } = await sbClient.auth.getSession();
       if (!session) {
@@ -152,9 +148,11 @@
           `Halo Kak ${order.customer_name}, konfirmasi pesanan:\n` +
           `• Produk: ${order.product_name} (${order.variant})\n` +
           `• Total: Rp ${Number(order.total_price).toLocaleString('id-ID')} (${order.payment_method})\n` +
-          `• Alamat: ${order.address}\n\nApakah alamat ini sudah benar dan siap dikirim?`
+          `• Alamat: ${order.address}\n\nApakah alamat ini sudah benar dan siap dikirim hari ini?`
         );
         const waUrl = `https://wa.me/${cleanPhone}?text=${waText}`;
+
+        const wilayahInfo = order.city ? `${order.district || ''}, ${order.city}` : '-';
 
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50 transition text-xs';
@@ -167,7 +165,10 @@
             <div class="font-medium text-slate-800">${order.customer_name}</div>
             <div class="text-slate-400">${order.whatsapp}</div>
           </td>
-          <td class="p-3"><span class="bg-slate-100 px-2 py-0.5 rounded text-slate-700">${order.variant || '-'}</span></td>
+          <td class="p-3 text-slate-600 font-medium">
+            ${wilayahInfo}
+            <div class="text-[10px] text-slate-400">${order.province || ''}</div>
+          </td>
           <td class="p-3">
             <div class="font-bold text-emerald-700">Rp ${Number(order.total_price).toLocaleString('id-ID')}</div>
             <div class="text-slate-400">${order.payment_method}</div>
@@ -202,9 +203,9 @@
 
     function exportToCSV() {
       if (allOrders.length === 0) return alert('Tidak ada data pesanan.');
-      let csv = 'Waktu,Produk,Nama,WhatsApp,Varian,Total,Metode,Alamat,Status\n';
+      let csv = 'Waktu,Produk,Nama,WhatsApp,Provinsi,Kota,Kecamatan,Total,Metode,Alamat,Status\n';
       allOrders.forEach(o => {
-        csv += `"${o.created_at}","${o.product_name}","${o.customer_name}","${o.whatsapp}","${o.variant}","${o.total_price}","${o.payment_method}","${o.address.replace(/"/g, '""')}","${o.status}"\n`;
+        csv += `"${o.created_at}","${o.product_name}","${o.customer_name}","${o.whatsapp}","${o.province || ''}","${o.city || ''}","${o.district || ''}","${o.total_price}","${o.payment_method}","${o.address.replace(/"/g, '""')}","${o.status}"\n`;
       });
 
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -214,14 +215,12 @@
       link.click();
     }
 
-    // Supabase Realtime Listener
     sbClient.channel('realtime-orders')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => {
         fetchOrders();
       })
       .subscribe();
 
-    // Jalankan pemeriksaan otentikasi saat load
     checkAuth();
   </script>
 </body>
