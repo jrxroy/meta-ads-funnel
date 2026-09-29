@@ -7,8 +7,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <!-- Supabase JS Client -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Supabase CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     body { font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -68,8 +68,12 @@
     </div>
   </main>
 
-  <script src="/js/supabase.js"></script>
   <script>
+    // Inisialisasi Langsung Supabase
+    const SUPABASE_URL = "https://cdqcdiykygxxjiflojbp.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkcWNkaXlreWd4eGppZmxvamJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAyMjE1NjYsImV4cCI6MjEwNTc5NzU2Nn0.hSMKpRMmyNGNxajxO68Fj7JyDiwEH1IFFuFnEjmiyrE";
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
     // Fungsi Salin 1-Click
     function copyText(val, btn) {
       navigator.clipboard.writeText(val).then(() => {
@@ -83,18 +87,18 @@
       });
     }
 
-    // Fungsi Salin Seluruh Format Paket untuk Mengantar
+    // Fungsi Salin Format Mengantar
     function copyAll(item) {
-      const format = `Nama: ${item.nama}\nNo HP: ${item.no_hp}\nAlamat: ${item.alamat}\nProduk: ${item.produk || 'Kaos Senyum Istriku'}\nTagihan COD: Rp ${Number(item.total_harga || 99000).toLocaleString('id-ID')}`;
+      const format = `Nama: ${item.nama || '-'}\nNo HP: ${item.no_hp || '-'}\nAlamat: ${item.alamat || '-'}\nProduk: ${item.paket || 'Kaos Senyum Istriku'} (${item.size || 'L'})\nTagihan COD: Rp ${Number(item.total_harga || 99000).toLocaleString('id-ID')}`;
       navigator.clipboard.writeText(format).then(() => {
-        alert("Semua data pemesan berhasil disalin!");
+        alert("Semua data pemesan berhasil disalin untuk Mengantar!");
       });
     }
 
     async function fetchOrders() {
       const tbody = document.getElementById("orderTableBody");
       try {
-        const { data, error } = await supabaseClient
+        const { data, error } = await db
           .from('orders')
           .select('*')
           .order('created_at', { ascending: false });
@@ -118,14 +122,14 @@
               <td class="py-3 px-4">
                 <div class="flex items-center gap-1.5 font-semibold text-slate-900">
                   <span>${order.nama || '-'}</span>
-                  <button onclick="copyText('${order.nama}', this)" title="Copy Nama" class="text-[10px] bg-slate-200 hover:bg-slate-300 px-1.5 py-0.5 rounded transition">📋</button>
+                  <button onclick="copyText('${order.nama || ''}', this)" title="Copy Nama" class="text-[10px] bg-slate-200 hover:bg-slate-300 px-1.5 py-0.5 rounded transition">📋</button>
                 </div>
               </td>
               <td class="py-3 px-4">
                 <div class="flex items-center gap-1.5 font-mono text-slate-800">
                   <span>${order.no_hp || '-'}</span>
-                  <button onclick="copyText('${order.no_hp}', this)" title="Copy No HP" class="text-[10px] bg-slate-200 hover:bg-slate-300 px-1.5 py-0.5 rounded transition">📋</button>
-                  <a href="https://wa.me/${String(order.no_hp).replace(/^0/, '62')}?text=Halo%20kak%20${encodeURIComponent(order.nama)},%20konfirmasi%20pesanan%20kaos%20di%20Outfit%20Pilihan%20ya.." target="_blank" class="text-[10px] bg-emerald-100 hover:bg-emerald-200 text-emerald-700 px-1.5 py-0.5 rounded font-bold">WA</a>
+                  <button onclick="copyText('${order.no_hp || ''}', this)" title="Copy No HP" class="text-[10px] bg-slate-200 hover:bg-slate-300 px-1.5 py-0.5 rounded transition">📋</button>
+                  <a href="https://wa.me/${String(order.no_hp || '').replace(/^0/, '62')}?text=Halo%20kak%20${encodeURIComponent(order.nama || '')},%20konfirmasi%20pesanan%20kaos%20di%20Outfit%20Pilihan%20ya.." target="_blank" class="text-[10px] bg-emerald-100 hover:bg-emerald-200 text-emerald-700 px-1.5 py-0.5 rounded font-bold">WA</a>
                 </div>
               </td>
               <td class="py-3 px-4 text-slate-700 font-medium">
@@ -133,8 +137,8 @@
               </td>
               <td class="py-3 px-4 max-w-xs">
                 <div class="flex items-start gap-1.5">
-                  <span class="truncate block text-slate-600" title="${order.alamat}">${order.alamat || '-'}</span>
-                  <button onclick="copyText('${order.alamat}', this)" title="Copy Alamat" class="shrink-0 text-[10px] bg-slate-200 hover:bg-slate-300 px-1.5 py-0.5 rounded transition">📋</button>
+                  <span class="truncate block text-slate-600" title="${order.alamat || ''}">${order.alamat || '-'}</span>
+                  <button onclick="copyText('${(order.alamat || '').replace(/'/g, "\\'")}', this)" title="Copy Alamat" class="shrink-0 text-[10px] bg-slate-200 hover:bg-slate-300 px-1.5 py-0.5 rounded transition">📋</button>
                 </div>
               </td>
               <td class="py-3 px-4 whitespace-nowrap">
