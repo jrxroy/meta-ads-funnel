@@ -12,6 +12,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    /* Mempermudah blok/sorot teks manual dengan mouse */
+    .selectable { user-select: text; -webkit-user-select: text; }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen">
@@ -36,8 +38,8 @@
     <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
       <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
         <div>
-          <h2 class="text-sm font-bold text-slate-800">Daftar Order COD Masuk</h2>
-          <p class="text-xs text-slate-500">Klik tombol salin di samping data untuk langsung paste ke Mengantar</p>
+          <h2 class="text-sm font-bold text-slate-800">Daftar Order Masuk</h2>
+          <p class="text-xs text-slate-500">Nama & No HP bisa langsung disorot manual. Gunakan tombol 'Salin Alamat' untuk Mengantar.</p>
         </div>
         <span id="orderCount" class="text-xs font-bold bg-indigo-50 text-indigo-600 px-2.5 py-1 rounded-full">
           0 Pesanan
@@ -50,12 +52,12 @@
           <thead class="bg-slate-100 text-slate-600 font-bold uppercase tracking-wider border-b border-slate-200">
             <tr>
               <th class="py-3 px-4">Waktu</th>
-              <th class="py-3 px-4">Penerima</th>
-              <th class="py-3 px-4">No. HP (WhatsApp)</th>
-              <th class="py-3 px-4">Detail Produk</th>
+              <th class="py-3 px-4">Penerima (Sorot)</th>
+              <th class="py-3 px-4">No. HP (Sorot)</th>
+              <th class="py-3 px-4">Varian / Produk</th>
               <th class="py-3 px-4">Alamat Lengkap</th>
               <th class="py-3 px-4">Tagihan COD</th>
-              <th class="py-3 px-4 text-center">Aksi Mengantar</th>
+              <th class="py-3 px-4 text-center">Aksi Cepat</th>
             </tr>
           </thead>
           <tbody id="orderTableBody" class="divide-y divide-slate-100">
@@ -69,29 +71,28 @@
   </main>
 
   <script>
-    // Inisialisasi Langsung Supabase
     const SUPABASE_URL = "https://cdqcdiykygxxjiflojbp.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkcWNkaXlreWd4eGppZmxvamJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAyMjE1NjYsImV4cCI6MjEwNTc5NzU2Nn0.hSMKpRMmyNGNxajxO68Fj7JyDiwEH1IFFuFnEjmiyrE";
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // Fungsi Salin 1-Click
-    function copyText(val, btn) {
-      navigator.clipboard.writeText(val).then(() => {
+    // Salin Alamat 1-Click
+    function copyAddress(text, btn) {
+      navigator.clipboard.writeText(text).then(() => {
         const originalText = btn.innerHTML;
-        btn.innerHTML = "✓";
+        btn.innerHTML = "✓ Tersalin";
         btn.classList.add("bg-emerald-600", "text-white");
         setTimeout(() => {
           btn.innerHTML = originalText;
           btn.classList.remove("bg-emerald-600", "text-white");
-        }, 1200);
+        }, 1500);
       });
     }
 
-    // Fungsi Salin Format Mengantar
-    function copyAll(item) {
-      const format = `Nama: ${item.nama || '-'}\nNo HP: ${item.no_hp || '-'}\nAlamat: ${item.alamat || '-'}\nProduk: ${item.paket || 'Kaos Senyum Istriku'} (${item.size || 'L'})\nTagihan COD: Rp ${Number(item.total_harga || 99000).toLocaleString('id-ID')}`;
+    // Salin Format Lengkap Mengantar
+    function copyAll(nama, no_hp, alamat, varian, cod) {
+      const format = `Nama: ${nama}\nNo HP: ${no_hp}\nAlamat: ${alamat}\nBarang: ${varian}\nTagihan COD: Rp ${Number(cod).toLocaleString('id-ID')}`;
       navigator.clipboard.writeText(format).then(() => {
-        alert("Semua data pemesan berhasil disalin untuk Mengantar!");
+        alert("Semua data berhasil disalin untuk Mengantar!");
       });
     }
 
@@ -105,6 +106,9 @@
 
         if (error) throw error;
 
+        // Cek struktur kolom di console browser (F12) untuk kemudahan inspeksi
+        console.log("Struktur Order Pertama:", data[0]);
+
         document.getElementById("orderCount").innerText = `${data.length} Pesanan`;
 
         if (!data || data.length === 0) {
@@ -113,43 +117,67 @@
         }
 
         tbody.innerHTML = data.map(order => {
-          const totalCOD = order.total_harga || 99000;
+          // Deteksi fleksibel terhadap berbagai kemungkinan penamaan kolom di Supabase
+          const nama = order.nama || order.customer_name || order.name || order.full_name || '-';
+          const hp = order.no_hp || order.phone || order.whatsapp || order.no_telepon || '-';
+          const alamat = order.alamat || order.address || order.alamat_lengkap || '-';
+          
+          // Deteksi varian produk
+          const varian = order.varian || order.variant || order.size || order.ukuran || 
+                         (order.paket ? `${order.paket} - ${order.size || ''}` : '') || 
+                         order.product_details || order.produk || 'Kaos Senyum Istriku (L)';
+          
+          const totalCOD = order.total_harga || order.total || order.price || order.tagihan || 99000;
+          const cleanPhone = String(hp).replace(/[^0-9]/g, '').replace(/^0/, '62');
+
           return `
             <tr class="hover:bg-slate-50 transition">
+              <!-- Waktu -->
               <td class="py-3 px-4 whitespace-nowrap text-slate-500">
-                ${new Date(order.created_at).toLocaleDateString('id-ID', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'})}
+                ${order.created_at ? new Date(order.created_at).toLocaleDateString('id-ID', {day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'}) : '-'}
               </td>
-              <td class="py-3 px-4">
-                <div class="flex items-center gap-1.5 font-semibold text-slate-900">
-                  <span>${order.nama || '-'}</span>
-                  <button onclick="copyText('${order.nama || ''}', this)" title="Copy Nama" class="text-[10px] bg-slate-200 hover:bg-slate-300 px-1.5 py-0.5 rounded transition">📋</button>
-                </div>
+
+              <!-- Nama (Bisa disorot manual dengan mudah) -->
+              <td class="py-3 px-4 font-semibold text-slate-900 selectable cursor-text">
+                ${nama}
               </td>
-              <td class="py-3 px-4">
-                <div class="flex items-center gap-1.5 font-mono text-slate-800">
-                  <span>${order.no_hp || '-'}</span>
-                  <button onclick="copyText('${order.no_hp || ''}', this)" title="Copy No HP" class="text-[10px] bg-slate-200 hover:bg-slate-300 px-1.5 py-0.5 rounded transition">📋</button>
-                  <a href="https://wa.me/${String(order.no_hp || '').replace(/^0/, '62')}?text=Halo%20kak%20${encodeURIComponent(order.nama || '')},%20konfirmasi%20pesanan%20kaos%20di%20Outfit%20Pilihan%20ya.." target="_blank" class="text-[10px] bg-emerald-100 hover:bg-emerald-200 text-emerald-700 px-1.5 py-0.5 rounded font-bold">WA</a>
-                </div>
-              </td>
-              <td class="py-3 px-4 text-slate-700 font-medium">
-                ${order.paket || '1 Pcs'} (${order.size || 'L'})
-              </td>
-              <td class="py-3 px-4 max-w-xs">
-                <div class="flex items-start gap-1.5">
-                  <span class="truncate block text-slate-600" title="${order.alamat || ''}">${order.alamat || '-'}</span>
-                  <button onclick="copyText('${(order.alamat || '').replace(/'/g, "\\'")}', this)" title="Copy Alamat" class="shrink-0 text-[10px] bg-slate-200 hover:bg-slate-300 px-1.5 py-0.5 rounded transition">📋</button>
-                </div>
-              </td>
+
+              <!-- No. HP (Bisa disorot manual + tombol WA) -->
               <td class="py-3 px-4 whitespace-nowrap">
-                <div class="flex items-center gap-1.5 font-bold text-slate-900">
-                  <span>Rp ${Number(totalCOD).toLocaleString('id-ID')}</span>
-                  <button onclick="copyText('${totalCOD}', this)" title="Copy Tagihan COD" class="text-[10px] bg-slate-200 hover:bg-slate-300 px-1.5 py-0.5 rounded transition">📋</button>
+                <div class="flex items-center gap-2">
+                  <span class="font-mono text-slate-800 selectable cursor-text">${hp}</span>
+                  ${hp !== '-' ? `<a href="https://wa.me/${cleanPhone}?text=Halo\%20kak\%20${encodeURIComponent(nama)},%20konfirmasi%20pesanan%20kaos%20di%20Outfit%20Pilihan%20ya.." target="_blank" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-800 text-[10px] font-bold px-1.5 py-0.5 rounded">WA</a>` : ''}
                 </div>
               </td>
+
+              <!-- Varian Produk -->
+              <td class="py-3 px-4 text-slate-800 font-medium">
+                <span class="bg-indigo-50 border border-indigo-100 text-indigo-700 px-2 py-0.5 rounded font-semibold text-[11px] inline-block">
+                  ${varian}
+                </span>
+              </td>
+
+              <!-- Alamat Lengkap + Tombol Copy Khusus -->
+              <td class="py-3 px-4 max-w-sm">
+                <div class="text-slate-700 leading-snug selectable cursor-text mb-1">
+                  ${alamat}
+                </div>
+                ${alamat !== '-' ? `
+                  <button onclick="copyAddress(\`${alamat.replace(/`/g, "\\`")}\`, this)" class="bg-slate-200 hover:bg-slate-300 text-slate-800 text-[10px] font-bold px-2 py-0.5 rounded transition">
+                    📋 Salin Alamat
+                  </button>
+                ` : ''}
+              </td>
+
+              <!-- Tagihan COD -->
+              <td class="py-3 px-4 whitespace-nowrap font-bold text-slate-950 font-mono">
+                Rp ${Number(totalCOD).toLocaleString('id-ID')}
+              </td>
+
+              <!-- Aksi Format Mengantar -->
               <td class="py-3 px-4 text-center whitespace-nowrap">
-                <button onclick='copyAll(${JSON.stringify(order)})' class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition">
-                  Copy Semua
+                <button onclick="copyAll(\`${nama.replace(/`/g, "\\`")}\`, \`${hp}\`, \`${alamat.replace(/`/g, "\\`")}\`, \`${varian.replace(/`/g, "\\`")}\`, \`${totalCOD}\`)" class="bg-slate-900 hover:bg-indigo-600 text-white text-[11px] font-semibold px-2.5 py-1.5 rounded-lg transition shadow-sm">
+                  Salin Paket
                 </button>
               </td>
             </tr>
